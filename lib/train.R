@@ -39,7 +39,7 @@ train <- function(dat_train, label_train, par=NULL){
     fit_gbm <- gbm.fit(x=featMat, y=labMat,
                        n.trees=200,
                        distribution="gaussian",
-                       interaction.depth=depth, 
+                       interaction.depth=depth,
                        bag.fraction = 0.5,
                        verbose=FALSE)
     best_iter <- gbm.perf(fit_gbm, method="OOB", plot.it = FALSE)
