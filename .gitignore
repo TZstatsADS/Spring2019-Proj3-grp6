@@ -1,0 +1,5 @@
+
+data/.DS_Store
+data/train_set/.DS_Store
+*.jpg
+data/train_set/label.csv
