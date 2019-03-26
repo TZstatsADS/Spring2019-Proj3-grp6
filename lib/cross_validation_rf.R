@@ -5,7 +5,7 @@
 ### Author: Weixuan Wu
 ### Project 3
 
-source("../doc/RF_model.R")
+source("train_rf.R")
 cv_rf <- function(X_train, y_train, k, num_tree){
   ### Perform cross validation on Random Forest model
   
