@@ -42,7 +42,7 @@ svm_train <- function(feat_train, label_train){
     print(i)
     print((proc.time()-t)[3])
   }
-  train_time = (proc.time()-t)[3]
+  all_train_time = (proc.time()-t)[3]
   cat("\nAll training time: ", all_train_time)
   return(model_list)
 }
