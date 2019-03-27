@@ -17,3 +17,8 @@ The output directory contains analysis output, processed datasets, logs, or othe
 - `fit_train_0.RDS`: this is the trained data from baseline model;
 
 - `fit_train.RDS`: this is the trained data from baseline improved model;
+
+Here is the link for `fit_train_0.RDS` and `fit_train.RDS`
+
+https://drive.google.com/file/d/1GrZGVUX91owX_t7hJMoIAT1hZVh9bfMt/view?usp=sharing
+https://drive.google.com/file/d/1gXlQU7TivijSuver7QpVGuYjRulNMzmP/view?usp=sharing
