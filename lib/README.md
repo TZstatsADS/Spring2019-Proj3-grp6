@@ -13,3 +13,7 @@ The lib directory contains various files with function definitions and code.
 `xgb_train`: this contains the training function of xgboost model.
 
 `test_xgb`: this contains the testing function of xgboost model.
+
+`cross_validation_base`: improved cv by paralleling it and running on the Google Cloud.
+
+`train_base` and `test_base` are used in baseline model
