@@ -16,7 +16,7 @@ Term: Spring 2019
 
 + Project summary: 
 
-In this project, we created a classification engine for enhance the resolution of images. We used GBM model to conduct the Feature Extraction and to complete the Baseline Model. After tuning model parameter, the baseline model can reach accuracy at 99% level. In order to facilitate the computational efficiency, we develop an enhanced model by using XGboost method. This method greatly reduces the training and testing time and it reaches at 95% accuracy level. To further improve the image, we use `superResolution` technique to enlarge the image. As a result, images conducted by our model become smoother comparing to those are enlarged directly. 
+In this project, we created a classification engine for enhance the resolution of images. We conducted the Feature Extraction and used GBM model to complete the Baseline Model. After tuning model parameter, the baseline model can reach accuracy at 99% level. In order to facilitate the computational efficiency, we develop an enhanced model by using XGboost method. This method greatly reduces the training and testing time and it reaches at 95% accuracy level. To further improve the image, we use `superResolution` technique to enlarge the image. As a result, images conducted by our model become smoother comparing to those are enlarged directly. 
 
 - Baseline_0 (with `depth` = 3, 5, 7, 9, 11 and `n.trees=200`)
 
@@ -29,7 +29,7 @@ Our team also explore other methods in order to improve the training process. We
 
 - SVM with RBF kernel (with `cost` = 0.1,1,10,50 and `gamma` = 0.01,0.1,1,10)
 
-- Random Forest
+- Random Forest (n_tree = 200, training error: 0.28%)
 
 
 
