@@ -180,7 +180,7 @@ if(run.xgb){
 * Do model selection by choosing among different values of training model parameters, that is, the interaction depth for GBM in this example. 
 ```{r runcv, message=FALSE, warning=FALSE}
 if(run.cv){
-  source("../lib/cross_validation_base.R")}
+  source("../lib/cross_validation.R")}
 if(run.cv.imp){
   source("../lib/cross_validation_base.R")}
 if(run.xgb){

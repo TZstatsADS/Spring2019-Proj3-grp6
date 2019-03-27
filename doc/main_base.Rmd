@@ -60,8 +60,8 @@ In this chunk, we have a set of controls for the evaluation experiments.
 + (T/F) process features for test set
 
 ```{r exp_setup}
-run.cv=F # run cross-validation on the training set
-run.cv.imp = T # run improved cross-validation
+run.cv=T # run cross-validation on the training set
+run.cv.imp = F # run improved cross-validation
 K <- 5  # number of CV folds
 run.feature.train=TRUE # process features for training set
 run.test=TRUE # run evaluation on an independent test set
@@ -143,6 +143,9 @@ Call the train model and test model from library.
 ```{r loadlib}
 source("../lib/train_base_imp.R")
 source("../lib/test_base.R")
+load("../output/feature_train.RData")
+feat_train <- dat_train$feature
+label_train <- dat_train$label
 ```
 
 #### Model selection with cross-validation
