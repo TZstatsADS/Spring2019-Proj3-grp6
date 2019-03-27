@@ -15,7 +15,15 @@ test <- function(modelList, dat_test){
   ### Output: training model specification
   
   ### load libraries
-  library("gbm")
+  ### load libraries
+  library('gbm')
+  library('foreach')
+  library('doParallel')
+  
+  cores <- detectCores(logical=F)
+  cl <- makeCluster(cores)
+  registerDoParallel(cl, cores=cores)
+  clusterEvalQ(cl, library('gbm'))
   
   predArr <- array(NA, c(dim(dat_test)[1], 4, 3))
   

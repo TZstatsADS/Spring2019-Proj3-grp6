@@ -1,12 +1,12 @@
 ---
-title: "Project 3 - Example Main Script"
-author: "Chengliang Tang, Tian Zheng"
+title: "Project 3 - Baseline Model Improvement"
+author: "Group 3 Jingwen Wang (credit to Chengliang Tang, Tian Zheng)"
 output: html_notebook
 ---
 
-In your final repo, there should be an R markdown file that organizes **all computational steps** for evaluating your proposed image classification framework. 
+This file contains our work on the baseline model. The training is done by 5-fold cross validation. The initial attempt focus on tuning the parameter `depth` (suggested as 3, 5, 7, 9, 11). The improved baseline model considers the effect on not only the `depth` parameter but also the `shrinkage (i.e. the learning rate)` and parameter `n.tree`.
 
-This file is currently a template for running evaluation experiments of image analysis (or any predictive modeling). You should update it according to your codes but following precisely the same structure. 
+**Loading Required Packages**
 
 ```{r}
 if(!require("EBImage")){
@@ -18,8 +18,13 @@ if(!require("gbm")){
   install.packages("gbm")
 }
 
+if(!require("doParallel")){
+  install.packages("doParallel")
+}
+
 library("EBImage")
 library("gbm")
+library("doParallel")
 ```
 
 
@@ -32,7 +37,6 @@ set.seed(2018)
 #setwd("./ads_fall2018_proj3")
 # here replace it with your own path or manually set it in RStudio to where this rmd file is located. 
 # use relative path for reproducibility
-
 ```
 
 Provide directories for training images. Low-resolution (LR) image set and High-resolution (HR) image set will be in different subfolders. 
@@ -49,24 +53,40 @@ train_label_path <- paste(train_dir, "label.csv", sep="")
 In this chunk, we have a set of controls for the evaluation experiments. 
 
 + (T/F) cross-validation on the training set
++ (T/F) improved baseline model (adding parameter `lr`)
 + (number) K, the number of CV folds
 + (T/F) process features for training set
 + (T/F) run evaluation on an independent test set
 + (T/F) process features for test set
 
 ```{r exp_setup}
-run.cv=TRUE # run cross-validation on the training set
+run.cv=F # run cross-validation on the training set
+run.cv.imp = T # run improved cross-validation
 K <- 5  # number of CV folds
 run.feature.train=TRUE # process features for training set
 run.test=TRUE # run evaluation on an independent test set
 run.feature.test=TRUE # process features for test set
 ```
 
-Using cross-validation or independent test set evaluation, we compare the performance of models with different specifications. In this example, we use GBM with different `depth`. In the following chunk, we list, in a vector, setups (in this case, `depth`) corresponding to models that we will compare. In your project, you might compare very different classifiers. You can assign them numerical IDs and labels specific to your project. 
+Using cross-validation or independent test set evaluation, we compare the performance of models with different specifications. 
+
+Our previous test using GBM with different `depth` (k = 3, 5, 7, 9, 11). In the following chunk, we list, in a vector, setups (in this case, `depth`) corresponding to models that we will compare.
+
+In the Baseline Improvement Model, we also tune parameter `shrinkage` and we try `depth` (k = 9,11). Ideally, we should have tried deeper depth (i.e. 13, 15, 17 etc).  
 
 ```{r model_setup}
-model_values <- seq(3, 11, 2)
-model_labels = paste("GBM with depth =", model_values)
+if(run.cv){
+  model_values <- seq(3, 11, 2)
+  model_labels = paste("GBM with depth =", model_values)
+}
+```
+
+```{r}
+if(run.cv.imp){
+  model_values <- list(depth=seq(9,11,2), lr=c(.1, .01, .001))
+  model_labels = paste("GBM with depth =", rep(model_values$depth, rep(3,2)), ', shrinkage =', rep(model_values$lr, 4))
+  
+}
 ```
 
 ### Step 2: import training images class labels.
@@ -98,21 +118,30 @@ if(run.feature.train){
 save(dat_train, file="../output/feature_train.RData")
 ```
 
+**Feature Train Time**
+```{r feature_train_time}
+cat("Time for constructing training features=", tm_feature_train[1], "s \n")
+# Time for constructing training features= 131.276 s 
+```
+
 
 ### Step 4: Train a regression model with training features and responses
 Call the train model and test model from library. 
 
-`train.R` and `test.R` should be wrappers for all your model training steps and your classification/prediction steps. 
-+ `train.R`
+`train_base.R` and `test_base.R` should be wrappers for all your model training steps and your classification/prediction steps. This two functions are used for baseline models.
+
++ `train_base_imp.R`
   + Input: a path that points to the training set features and responses.
-  + Output: an RData file that contains trained classifiers in the forms of R objects: models/settings/links to external trained configurations.
-+ `test.R`
+  + Output: an RData (or RDS) file that contains trained classifiers in the forms of R objects: models/settings/links to external trained configurations.
++ `test_base.R`
   + Input: a path that points to the test set features.
   + Input: an R object that contains a trained classifier.
   + Output: an R object of response predictions on the test set. If there are multiple classifiers under evaluation, there should be multiple sets of label predictions. 
+  
++ `train_base_imp` considers about `depth` and `shrinkage`, and we set `n.tree = 1000` instead of `200`. We tried to improve the efficiency by paralleling the algorithm.
+
 ```{r loadlib}
-#library(RData)
-source("../lib/train_base.R")
+source("../lib/train_base_imp.R")
 source("../lib/test_base.R")
 ```
 
@@ -121,6 +150,7 @@ source("../lib/test_base.R")
 ```{r runcv, message=FALSE, warning=FALSE}
 source("../lib/cross_validation_base.R")
 
+# Initial Baseline
 if(run.cv){
   err_cv <- array(dim=c(length(model_values), 4))
   for(k in 1:length(model_values)){
@@ -131,7 +161,23 @@ if(run.cv){
 }
 ```
 
-Visualize cross-validation results. 
+```{r imp_cv}
+# Improved Baseline
+if(run.cv.imp){
+  err_cv <- array(dim=c(length(model_values[[1]])* length(model_values[[2]]), 4))
+  for(k in 1:length(model_values[[1]])){
+    cat('k=', k, '\n')
+    for(j in 1:length(model_values[[2]])) {
+      cat('shrinkage=', model_values[[2]][j], '\n')
+      par <- list(d=model_values[[1]][k], lr=model_values[[2]][j])
+      err_cv[(k-1)*length(model_values[[2]]) + j,] <- cv.function(feat_train, label_train, par, K)
+    }
+  }
+  save(err_cv, file="../output/err_cv_imp.RData")
+}
+```
+
+Visualize cross-validation results of inital Baseline Model. 
 ```{r cv_vis}
 if(run.cv){
   load("../output/err_cv.RData")
@@ -144,14 +190,14 @@ if(run.cv){
 }
 ```
 
-```{r cv_vis_table}
+```{r cv_table}
 # Printed As Table
 colnames(err_cv) <- c("cv train error","cv error std", "PSNR", "PSNR std")
 rownames(err_cv) <- c("k=3","k=5","k=7","k=9","k=11")
 err_cv
 ```
 
-* Choose the "best"" parameter value
+* Choose the "best"" parameter value by initial baseline model:
 ```{r best_model}
 model_best=model_values[1]
 if(run.cv){
@@ -161,11 +207,48 @@ if(run.cv){
 par_best <- list(depth=model_best) # depth at 11
 ```
 
-* Train the model with the entire training set using the selected model (model parameter) via cross-validation.
+**Result from Improved Baseline Model**: Lower Error Rate
+
+```{r cv_imp}
+if(run.cv.imp){
+  load("../output/err_cv_lr.RData")
+  # Depth = 9
+  dep.9 <- err_cv[1:3,]
+  rownames(dep.9) <- c("lr=0.1","lr=0.01","lr=0.001")
+  colnames(dep.9) <- c("error mean","error std", "PSNR mean", "PSNR std")
+  print(dep.9)
+  # Depth = 11
+    dep.11 <- err_cv[4:6,]
+    rownames(dep.11) <- c("lr=0.1","lr=0.01","lr=0.001")
+    colnames(dep.11) <- c("error mean","error std", "PSNR mean", "PSNR std")
+    print(dep.11)
+}
+```
+
+* Train the model with the entire training set using the selected model (model parameter) via cross-validation. (Initial Model)
 ```{r final_train}
-tm_train=NA
-tm_train <- system.time(fit_train <- train(feat_train, label_train, par_best))
-save(fit_train, file="../output/fit_train.RData")
+if(run.cv){
+  tm_train=NA
+  tm_train <- system.time(fit_train <- train(feat_train, label_train, par_best))
+  saveRDS(fit_train, file="../output/fit_train_0.RDS")
+}
+```
+
+* Train the model with the entire training set using the selected model (model parameter) via cross-validation.
+```{r final_train_imp,warning=FALSE}
+if(run.cv.imp){
+  par_best <- list(depth = 11,lr=0.01) # Parameter From Improved Baseline
+  tm_train=NA
+  tm_train <- system.time(fit_train <- train(feat_train, label_train, par_best))
+  saveRDS(fit_train, file="../output/fit_train.RDS")
+  
+}
+```
+
+```{r training_time_baseline}
+cat("Time for initial training model=", tm_train[1], "s \n")
+# Time for training improved baseline model= 57.077 s 
+# (we run this on Google Cloud)
 ```
 
 ### Step 5: Super-resolution for test images
@@ -175,7 +258,7 @@ Feed the final training model with the completely holdout testing data.
   + Input: a path that points to the folder (empty) of high-resolution test images.
   + Input: an R object that contains tuned predictors.
   + Output: construct high-resolution versions for each low-resolution test image.
-```{r superresolution}
+```{r superresolution,warning=FALSE}
 source("../lib/superResolution.R")
 test_dir <- "../data/test_set/" # This will be modified for different data sets.
 test_LR_dir <- paste(test_dir, "LR/", sep="")
@@ -184,9 +267,13 @@ test_HR_dir <- paste(test_dir, "HR/", sep="")
 tm_test=NA
 if(run.test){
   fit_train <- readRDS("../output/fit_train.RDS")
-  # load(file="../output/fit_train.RDS")
   tm_test <- system.time(superResolution(test_LR_dir, test_HR_dir, fit_train))
 }
+```
+
+```{r test_time}
+# Time for one picture
+cat("Time for super-resolution one picture =",tm_test[1],"s \n")
 ```
 
 ### Summarize Running Time
