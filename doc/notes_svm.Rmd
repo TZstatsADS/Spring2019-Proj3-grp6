@@ -1,0 +1,7 @@
+---
+title: "notes_svm"
+author: "Yuqiao Li yl3965"
+output: html_document
+---
+
+Training Result: Training of 50 images cost about 2 hours. Cross-validation cost more than 12 hours. Due to the huge time consuming, we abandoned this model finally.
