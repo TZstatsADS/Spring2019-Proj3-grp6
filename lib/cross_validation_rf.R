@@ -6,6 +6,7 @@
 ### Project 3
 
 source("train_rf.R")
+source("test_rf.R")
 cv_rf <- function(X_train, y_train, k, num_tree){
   ### Perform cross validation on Random Forest model
   

@@ -8,7 +8,6 @@ if(!require("randomForest")){
 }
 
 
-
 rf_train = function(x_train, y_train, n_tree=NULL){
   library(randomForest)
   model_list = list()
@@ -35,10 +34,8 @@ rf_train = function(x_train, y_train, n_tree=NULL){
     classifier = randomForest(y_train ~ ., data = train_file,
                               importance = TRUE,
                               ntree = n_tree)
-
     
     model_list[[i]] <- list(fit=classifier)
-    
   }
   
   
