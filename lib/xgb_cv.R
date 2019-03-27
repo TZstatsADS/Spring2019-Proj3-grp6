@@ -12,7 +12,7 @@ xgb.parameters<-function(feat_train, label_train,k){
   }
   
   cv.err <- list()
-  library(xgboost)
+  # library(xgboost)
   dtrain <- xgb.DMatrix(data=as.matrix(featMat),label=labMat)
   
   test.err <- array(NA,c(12,1))
