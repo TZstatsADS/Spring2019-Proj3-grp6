@@ -44,7 +44,7 @@ Our team also explore other methods in order to improve the training process. We
 
 - Ziyi Liao(zl2739): Worked on Extreme Gradient Boosting(`XGBoost model`); collaborated with Jingwen Wang, completed the `main.Rmd`; prepare the presentation and slides. Helped with `ReadMe`.
 
-- Weixuan Wu(ww2493): Worked on feature generation; wrote `train_rf.R`, `test_rf.R`, and `cross_validation_rf.R`.
+- Weixuan Wu(ww2493): Worked on feature generation; wrote `train_rf.R`, `test_rf.R`, and `cross_validation_rf.R`, and tested the model on a small sample (200 images).
 
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is organized as follows.
 
